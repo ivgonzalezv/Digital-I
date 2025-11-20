@@ -1,0 +1,37 @@
+module SHIFT_DEC (
+    input              CLK,
+    input              DV0,       // bit de cociente (0 o 1)
+    input              INIT,      // inicializa A y DV
+    input              SH,        // señal de corrimiento
+    input      [15:0]  DV_IN,     // dividendo inicial
+    input              LDA,       // carga A con el resultado del sumador
+    input      [15:0]  RES,       // salida del sumador (A - DR)
+    input              MSB,
+    output reg [15:0]  DV,        // registro del dividendo (se modifica)
+    output reg [15:0]  R,         // resultado final del cociente
+    output reg [15:0]  A          // acumulador (resto parcial)
+);
+
+    always @(posedge CLK) begin
+        if (INIT) begin
+            // Inicialización
+            A  <= 16'd0;      // limpia acumulador
+            DV <= DV_IN;      // carga el dividendo inicial
+            R  <= 16'd0;      // limpia el resultado
+        end
+        else if (SH) begin
+            // Corrimiento concatenado entre A y DV
+            {A, DV} <= {A, DV} << 1;
+        end
+        else if (!SH && MSB==1)begin
+            R <= {R[14:0], DV0};
+        end
+        else if (LDA) begin
+            // Actualiza A con el resultado del sumador
+            A <= RES;
+            // Construye R bit a bit usando DV0
+            R <= {R[14:0], DV0};
+        end
+    end
+
+endmodule
