@@ -1,0 +1,21 @@
+module SUMADOR (
+    input [15:0] A,    // valor actual del acumulador
+    input [15:0] DR,   // divisor
+    output [15:0] RES, 
+    output MSB          // bit más significativo del resultado
+);
+
+ wire [15:0] SUB;
+// Resta en complemento a dos
+    assign SUB = A - DR;
+
+    // Bit de signo
+    assign MSB = SUB[15];
+
+    // Si es negativo, conviértelo a valor positivo (magnitud)
+    assign RES = (MSB) ? (~SUB + 1) : SUB;
+ 
+    //assign RES = SUB;
+
+
+endmodule
