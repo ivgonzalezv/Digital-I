@@ -1,0 +1,75 @@
+module DIVISOR(
+    input CLK,
+    input START,
+    input [15:0] DV,   // dividendo
+    input [15:0] DR,   // divisor
+    
+    output DONE,
+    output [15:0] R    // cociente final
+);
+
+    // Señales internas
+    wire W_SH;
+    wire W_INIT;
+    wire W_LDA;
+    wire W_DV0;
+    wire W_DEC;
+    wire W_MSB;
+    wire W_Z;
+    wire [15:0] W_RES;
+    wire [15:0] W_A;
+    wire [15:0] W_DV;     // registro interno del dividendo desplazado
+    wire [4:0]  W_COUNT;
+
+    // REGISTRO DE DESPLAZAMIENTO + ACUMULADOR
+    SHIFT_DEC SHIFT_DEC0 (
+        .CLK(CLK),
+        .DV0(W_DV0),
+        .INIT(W_INIT),
+        .SH(W_SH),
+        .DV_IN(DV),     // <- corregido
+        .LDA(W_LDA),
+        .RES(W_RES),
+        .DV(W_DV),      // <- nueva salida interna
+        .R(R),
+        .A(W_A),
+        .MSB(W_MSB)
+    );
+
+    // SUMADOR (A - DR)
+    SUMADOR SUMADOR0 (
+        .A(W_A),
+        .DR(DR),
+        .RES(W_RES),
+        .MSB(W_MSB)
+    );
+
+    // CONTADOR DESCENDENTE
+    CONTADOR CONTADOR0 (
+        .CLK(CLK),
+        .INIT(W_INIT),
+        .DEC(W_DEC),
+        .COUNT(W_COUNT)
+    );
+
+    // COMPARADOR DE FIN DE CICLO
+    COMPARADOR COMPARADOR0 (
+        .COUNT(W_COUNT),
+        .Z(W_Z)
+    );
+
+    // UNIDAD DE CONTROL
+    CONTROL CONTROL0 (
+        .CLK(CLK),
+        .START(START),
+        .MSB(W_MSB),
+        .Z(W_Z),
+        .SH(W_SH),
+        .INIT(W_INIT),
+        .LDA(W_LDA),
+        .DV0(W_DV0),
+        .DEC(W_DEC),
+        .DONE(DONE)
+    );
+
+endmodule
