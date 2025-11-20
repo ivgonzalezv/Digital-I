@@ -1,0 +1,16 @@
+module CONTADOR (
+    input CLK,
+    input INIT,      // Señal para cargar el valor inicial (16)
+    input DEC,       // Habilitación de decremento
+    output reg [4:0] COUNT
+);
+
+    always @(posedge CLK) begin
+        if (INIT)
+            COUNT <= 5'd16;              // Valor inicial 
+        else if (DEC && COUNT != 0)      // <-- Protección anti-underflow
+            COUNT <= COUNT - 1;          // Solo decrementa si COUNT > 0
+        // Si COUNT == 0, se mantiene en 0 y evita salto a 31
+    end
+
+endmodule
